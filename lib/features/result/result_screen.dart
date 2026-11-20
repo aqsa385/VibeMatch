@@ -8,10 +8,18 @@ import '../../data/models/mood.dart';
 import 'widgets/song_tile.dart';
 
 class ResultArgs {
-  const ResultArgs({this.mood, this.imagePath, this.colors = const []});
+  const ResultArgs({
+    this.mood,
+    this.imagePath,
+    this.colors = const [],
+    this.valence,
+    this.energy,
+  });
   final Mood? mood;
   final String? imagePath;
   final List<ExtractedColor> colors;
+  final double? valence; // from the photo, used later for the playlist
+  final double? energy;
 }
 
 // Placeholder playlist. Real playlist generation comes later.
@@ -57,12 +65,8 @@ class ResultScreen extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final path = args?.imagePath;
     final colors = args?.colors ?? const <ExtractedColor>[];
+    final mood = args?.mood ?? Mood.chill;
     final fromPhoto = path != null;
-
-    // Placeholder mood for photos until the MoodEngine exists.
-    final mood = fromPhoto ? Mood.chill : (args?.mood ?? Mood.chill);
-    final moodText =
-    fromPhoto ? 'Chill : soft, relaxed' : '${mood.label} : your pick';
 
     return Scaffold(
       appBar: AppBar(title: const Text('Vibe Match'), centerTitle: true),
@@ -94,7 +98,17 @@ class ResultScreen extends StatelessWidget {
                     _PaletteRow(colors: colors),
                   ],
                   const SizedBox(height: 18),
-                  _MoodChip(mood: mood, text: moodText),
+                  _MoodChip(
+                    mood: mood,
+                    text: '${mood.label} : ${mood.tagline}',
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6, left: 6),
+                    child: Text(
+                      fromPhoto ? 'Detected from your photo' : 'Mood you picked',
+                      style: textTheme.bodySmall,
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   Row(
                     children: [

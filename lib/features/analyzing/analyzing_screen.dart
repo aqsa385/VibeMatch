@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/utils/color_extractor.dart';
 import '../result/result_screen.dart';
+import '../../services/mood_engine.dart';
 
 class AnalyzingScreen extends StatefulWidget {
   const AnalyzingScreen({super.key, required this.imagePath});
@@ -24,12 +25,19 @@ class _AnalyzingScreenState extends State<AnalyzingScreen> {
   Future<void> _run() async {
     try {
       final colors = await ColorExtractor.extract(widget.imagePath);
+      final vibe = MoodEngine.analyze(colors);
       // Keep this screen visible a moment so the user can see it.
       await Future<void>.delayed(const Duration(milliseconds: 1500));
       if (!mounted) return;
       context.pushReplacement(
         '/result',
-        extra: ResultArgs(imagePath: widget.imagePath, colors: colors),
+        extra: ResultArgs(
+          imagePath: widget.imagePath,
+          colors: colors,
+          mood: vibe.mood,
+          valence: vibe.valence,
+          energy: vibe.energy,
+        ),
       );
     } catch (_) {
       if (!mounted) return;
